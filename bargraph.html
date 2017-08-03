@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>D3: wheee</title>
+    <script type="text/javascript" src="d3.js"></script>
+    <style type="text/css">
+			p {
+				font-family: verdana;
+				font-size: 10px;
+			}
+		</style>
+</head>
+<body>
+<p>number of data values: <i id="count"></i></p>
+<p id="randomize">click me to randomize chart values!</p>
+<p id="plus">click me to add a data value!</p>
+<p id="minus">click me to remove a data value!</p>
+
+<script type="text/javascript">
+
+			//Width and height
+			var w = 600;
+			var h = 150;
+			var numData = 40;
+			var maxValue = 30;
+
+			document.getElementById("count").innerHTML = numData;
+			var randomColor = Math.floor(Math.random()*7);
+
+			var dataset = [];
+			for (var i = 0; i < numData; i++) {
+				dataset.push(Math.round(Math.random()*maxValue));
+			}
+
+			var xScale = d3.scaleBand()
+							.domain(d3.range(dataset.length))
+							.rangeRound([0, w])
+							.paddingInner(0.05);
+
+			var yScale = d3.scaleLinear()
+							.domain([0, d3.max(dataset)])
+							.rangeRound([0, h]);
+
+			var colorScale = d3.scaleLinear()
+							.domain([0, d3.max(dataset)])
+							.rangeRound([0, 255]);
+
+			//Create SVG element
+			var svg = d3.select("body")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+
+			//Create bars
+			svg.selectAll("rect")
+			   .data(dataset)
+			   .enter()
+			   .append("rect")
+			   .attr("x", function(d, i) {
+			   		return xScale(i);
+			   })
+			   .attr("y", function(d) {
+			   		return h - yScale(d);
+			   })
+			   .attr("width", xScale.bandwidth())
+			   .attr("height", function(d) {
+			   		return yScale(d);
+			   })
+			   .attr("fill", function(d) {
+					if (randomColor == 0)
+						return "rgb(" + Math.round(colorScale(d)) + ", 0, 0)";
+					if (randomColor == 1)
+						return "rgb(0, " + Math.round(colorScale(d)) + ", 0)";
+					if (randomColor == 2)
+						return "rgb(0, 0, " + Math.round(colorScale(d)) + ")";
+					if (randomColor == 3)
+						return "rgb(" + Math.round(colorScale(d)) + ", " +
+							Math.round(colorScale(d)) + ", 0)";
+					if (randomColor == 4)
+						return "rgb(" + Math.round(colorScale(d)) + ", 0, " +
+							Math.round(colorScale(d)) + ")";
+					if (randomColor == 5)
+						return "rgb(0, " + Math.round(colorScale(d)) + ", " +
+							Math.round(colorScale(d)) + ")";
+					else
+						return "rgb(" + Math.round(colorScale(d)) + ", " +
+							Math.round(colorScale(d)) + ", " +
+							Math.round(colorScale(d)) + ")";
+			   });
+
+			//Create labels
+			svg.selectAll("text")
+			   .data(dataset)
+			   .enter()
+			   .append("text")
+			   .text(function(d) {
+			   		return d;
+			   })
+			   .attr("text-anchor", "middle")
+			   .attr("x", function(d, i) {
+			   		return xScale(i) + xScale.bandwidth() / 2;
+			   })
+			   .attr("y", function(d) {
+					if (d < Math.round(maxValue*0.15)) return h - yScale(d) - 3;
+			   		else return h - yScale(d) + 12;
+			   })
+			   .attr("font-family", "sans-serif")
+			   .attr("font-size", "11px")
+			   .attr("fill", function(d) {
+					if (d >= Math.round(maxValue*0.9) ||
+						d < Math.round(maxValue*0.15)) return "black";
+					else return "white";
+				});
+
+
+			d3.select("#randomize")
+				.on("click", function() {
+					randomColor = Math.floor(Math.random()*7);
+
+					dataset = [];
+					for (var i = 0; i < numData; i++) {
+						dataset.push(Math.round(Math.random()*maxValue));
+					}
+
+					yScale.domain([0, d3.max(dataset)]);
+
+					svg.selectAll("rect")
+						.data(dataset)
+						.transition()
+						.delay(function(d, i) { return i/dataset.length * 1200; })
+						.duration(500)
+						.attr("y", function(d) {
+							return h - yScale(d);
+						})
+						.attr("height", function(d) {
+							return yScale(d);
+						})
+						.attr("fill", function(d) {
+							if (randomColor == 0)
+								return "rgb(" + Math.round(colorScale(d)) + ", 0, 0)";
+							if (randomColor == 1)
+								return "rgb(0, " + Math.round(colorScale(d)) + ", 0)";
+							if (randomColor == 2)
+								return "rgb(0, 0, " + Math.round(colorScale(d)) + ")";
+							if (randomColor == 3)
+								return "rgb(" + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ", 0)";
+							if (randomColor == 4)
+								return "rgb(" + Math.round(colorScale(d)) + ", 0, " +
+									Math.round(colorScale(d)) + ")";
+							if (randomColor == 5)
+								return "rgb(0, " + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ")";
+							else
+								return "rgb(" + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ")";
+						});
+
+					svg.selectAll("text")
+						.data(dataset)
+						.transition()
+						.delay(function(d, i) { return i/dataset.length * 1200; })
+						.duration(500)
+						.text(function(d) {
+							return d;
+						})
+						.attr("x", function(d, i) {
+							return xScale(i) + xScale.bandwidth()/2;
+						})
+						.attr("y", function(d) {
+							if (d < Math.round(maxValue*0.15)) return h - yScale(d) - 3;
+							else return h - yScale(d) + 12;
+						})
+						.attr("fill", function(d) {
+							if (d >= Math.round(maxValue*0.9) ||
+								d < Math.round(maxValue*0.15)) return "black";
+							else return "white";
+						});
+				});
+
+			d3.select("#plus")
+				 .on("click", function() {
+                     dataset.push(Math.round(Math.random()*maxValue));
+                     numData++;
+
+                     document.getElementById("count").innerHTML = numData;
+                     xScale.domain(d3.range(dataset.length));
+
+                     var bars = svg.selectAll("rect")
+                        .data(dataset);
+
+                     bars.enter()
+                        .append("rect")
+                        .attr("x", w)
+                        .attr("y", function(d) {
+                            return h - yScale(d);
+                        })
+                        .attr("width", xScale.bandwidth())
+                        .attr("height", function(d) {
+                            return yScale(d);
+                        })
+                        .attr("fill", function(d) {
+							if (randomColor == 0)
+								return "rgb(" + Math.round(colorScale(d)) + ", 0, 0)";
+							if (randomColor == 1)
+								return "rgb(0, " + Math.round(colorScale(d)) + ", 0)";
+							if (randomColor == 2)
+								return "rgb(0, 0, " + Math.round(colorScale(d)) + ")";
+							if (randomColor == 3)
+								return "rgb(" + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ", 0)";
+							if (randomColor == 4)
+								return "rgb(" + Math.round(colorScale(d)) + ", 0, " +
+									Math.round(colorScale(d)) + ")";
+							if (randomColor == 5)
+								return "rgb(0, " + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ")";
+							else
+								return "rgb(" + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ")";
+						})
+                        .merge(bars)
+                        .transition()
+                        .duration(250)
+                        .attr("x", function(d, i) {
+                            return xScale(i);
+                        })
+                        .attr("width", xScale.bandwidth())
+                        .attr("height", function(d) {
+                            return yScale(d);
+                        });
+
+                        var barText = svg.selectAll("text")
+                           .data(dataset);
+
+                        barText.enter()
+                           .append("text")
+						   .text(function(d) {
+			              		return d;
+			               })
+			               .attr("text-anchor", "middle")
+			               .attr("x", w)
+			               .attr("y", function(d) {
+			            		if (d < Math.round(maxValue*0.15)) return h - yScale(d) - 3;
+			              		else return h - yScale(d) + 12;
+		                    })
+			               .attr("font-family", "sans-serif")
+			               .attr("font-size", "11px")
+		               	   .attr("fill", function(d) {
+		            			if (d >= Math.round(maxValue*0.9) ||
+		            				d < Math.round(maxValue*0.15)) return "black";
+		            			else return "white";
+	            			})
+					    	.merge(barText)
+					    	.transition()
+    						.duration(250)
+    						.attr("text-anchor", "middle")
+		       				.attr("x", function(d, i) {
+		    					return xScale(i) + xScale.bandwidth()/2;
+		    				})
+		    			 	.attr("y", function(d) {
+		    					if (d < Math.round(maxValue*0.15)) return h - yScale(d) - 3;
+		    					else return h - yScale(d) + 12;
+		    				});
+				 });
+
+			d3.select("#minus")
+			    .on("click", function() {
+                    dataset.shift();
+                    numData--;
+
+                    document.getElementById("count").innerHTML = numData;
+                    xScale.domain(d3.range(dataset.length));
+                    yScale.domain([0, d3.max(dataset)]);
+
+                    var bars = svg.selectAll("rect")
+                        .data(dataset);
+
+                    bars.exit()
+                        .transition()
+                        .duration(500)
+                        .attr("fill", "transparent")
+                        .remove();
+
+                    bars.enter()
+                        .append("rect")
+                        .attr("y", function(d) {
+                            return h - yScale(d);
+                        })
+                        .attr("width", xScale.bandwidth())
+                        .attr("height", function(d) {
+                            return yScale(d);
+                        })
+                        .merge(bars)
+                        .transition()
+                        .duration(500)
+                        .attr("x", function(d, i) {
+                            return xScale(i);
+                        })
+                        .attr("y", function(d) {
+                            return h - yScale(d);
+                        })
+                        .attr("width", xScale.bandwidth())
+                        .attr("height", function(d) {
+                            return yScale(d);
+                        })
+                        .attr("fill", function(d) {
+							if (randomColor == 0)
+								return "rgb(" + Math.round(colorScale(d)) + ", 0, 0)";
+							if (randomColor == 1)
+								return "rgb(0, " + Math.round(colorScale(d)) + ", 0)";
+							if (randomColor == 2)
+								return "rgb(0, 0, " + Math.round(colorScale(d)) + ")";
+							if (randomColor == 3)
+								return "rgb(" + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ", 0)";
+							if (randomColor == 4)
+								return "rgb(" + Math.round(colorScale(d)) + ", 0, " +
+									Math.round(colorScale(d)) + ")";
+							if (randomColor == 5)
+								return "rgb(0, " + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ")";
+							else
+								return "rgb(" + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ")";
+						});
+
+                    var barText = svg.selectAll("text")
+                        .data(dataset);
+
+                    barText.exit()
+                        .transition()
+                        .duration(500)
+                        .attr("fill", "transparent")
+                        .remove();
+
+                    svg.selectAll("text")
+                        .data(dataset)
+                        .transition()
+                        .duration(500)
+                        .text(function(d) {
+							return d;
+						})
+						.attr("x", function(d, i) {
+							return xScale(i) + xScale.bandwidth()/2;
+						})
+						.attr("y", function(d) {
+							if (d < Math.round(maxValue*0.15)) return h - yScale(d) - 3;
+							else return h - yScale(d) + 12;
+						})
+						.attr("fill", function(d) {
+							if (d >= Math.round(maxValue*0.9) ||
+								d < Math.round(maxValue*0.15)) return "black";
+							else return "white";
+						});
+			    });
+
+		</script>
+</body>
+</html>
