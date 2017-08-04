@@ -16,6 +16,7 @@
 <p id="randomize">click me to randomize chart values!</p>
 <p id="plus">click me to add a data value!</p>
 <p id="minus">click me to remove a data value!</p>
+<p>sort the data: <i id="ltog">least to greatest</i> || <i id="gtol">greatest to least</i></p>
 
 <script type="text/javascript">
 
@@ -187,6 +188,7 @@
 
                      document.getElementById("count").innerHTML = numData;
                      xScale.domain(d3.range(dataset.length));
+                     yScale.domain([0, d3.max(dataset)]);
 
                      var bars = svg.selectAll("rect")
                         .data(dataset);
@@ -227,6 +229,9 @@
                         .duration(250)
                         .attr("x", function(d, i) {
                             return xScale(i);
+                        })
+                        .attr("y", function(d) {
+                            return h - yScale(d);
                         })
                         .attr("width", xScale.bandwidth())
                         .attr("height", function(d) {
@@ -343,6 +348,150 @@
                         .transition()
                         .duration(500)
                         .text(function(d) {
+							return d;
+						})
+						.attr("x", function(d, i) {
+							return xScale(i) + xScale.bandwidth()/2;
+						})
+						.attr("y", function(d) {
+							if (d < Math.round(maxValue*0.15)) return h - yScale(d) - 3;
+							else return h - yScale(d) + 12;
+						})
+						.attr("fill", function(d) {
+							if (d >= Math.round(maxValue*0.9) ||
+								d < Math.round(maxValue*0.15)) return "black";
+							else return "white";
+						});
+			    });
+
+            d3.select("#ltog")
+                .on("click", function() {
+                    var swapped = false;
+                    for (var i = 0; i < numData; i++) {
+                        for (var j = i; j < numData; j++) {
+                            if (dataset[i] > dataset[j]) {
+                                var temp = dataset[i];
+                                dataset[i] = dataset[j];
+                                dataset[j] = temp;
+                                swapped = true;
+                            }
+                        }
+                        if (swapped = false) {
+                            break;
+                        }
+                    }
+
+                    svg.selectAll("rect")
+						.data(dataset)
+						.transition()
+						.delay(function(d, i) { return i/dataset.length * 1200; })
+						.duration(500)
+						.attr("y", function(d) {
+							return h - yScale(d);
+						})
+						.attr("height", function(d) {
+							return yScale(d);
+						})
+						.attr("fill", function(d) {
+							if (randomColor == 0)
+								return "rgb(" + Math.round(colorScale(d)) + ", 0, 0)";
+							if (randomColor == 1)
+								return "rgb(0, " + Math.round(colorScale(d)) + ", 0)";
+							if (randomColor == 2)
+								return "rgb(0, 0, " + Math.round(colorScale(d)) + ")";
+							if (randomColor == 3)
+								return "rgb(" + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ", 0)";
+							if (randomColor == 4)
+								return "rgb(" + Math.round(colorScale(d)) + ", 0, " +
+									Math.round(colorScale(d)) + ")";
+							if (randomColor == 5)
+								return "rgb(0, " + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ")";
+							else
+								return "rgb(" + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ")";
+						});
+
+					svg.selectAll("text")
+						.data(dataset)
+						.transition()
+						.delay(function(d, i) { return i/dataset.length * 1200; })
+						.duration(500)
+						.text(function(d) {
+							return d;
+						})
+						.attr("x", function(d, i) {
+							return xScale(i) + xScale.bandwidth()/2;
+						})
+						.attr("y", function(d) {
+							if (d < Math.round(maxValue*0.15)) return h - yScale(d) - 3;
+							else return h - yScale(d) + 12;
+						})
+						.attr("fill", function(d) {
+							if (d >= Math.round(maxValue*0.9) ||
+								d < Math.round(maxValue*0.15)) return "black";
+							else return "white";
+						});
+			    });
+
+            d3.select("#gtol")
+                .on("click", function() {
+                    var swapped = false;
+                    for (var i = numData-1; i >= 0; i--) {
+                        for (var j = i; j >= 0; j--) {
+                            if (dataset[i] > dataset[j]) {
+                                var temp = dataset[i];
+                                dataset[i] = dataset[j];
+                                dataset[j] = temp;
+                                swapped = true;
+                            }
+                        }
+                        if (swapped = false) {
+                            break;
+                        }
+                    }
+
+                    svg.selectAll("rect")
+						.data(dataset)
+						.transition()
+						.delay(function(d, i) { return i/dataset.length * 1200; })
+						.duration(500)
+						.attr("y", function(d) {
+							return h - yScale(d);
+						})
+						.attr("height", function(d) {
+							return yScale(d);
+						})
+						.attr("fill", function(d) {
+							if (randomColor == 0)
+								return "rgb(" + Math.round(colorScale(d)) + ", 0, 0)";
+							if (randomColor == 1)
+								return "rgb(0, " + Math.round(colorScale(d)) + ", 0)";
+							if (randomColor == 2)
+								return "rgb(0, 0, " + Math.round(colorScale(d)) + ")";
+							if (randomColor == 3)
+								return "rgb(" + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ", 0)";
+							if (randomColor == 4)
+								return "rgb(" + Math.round(colorScale(d)) + ", 0, " +
+									Math.round(colorScale(d)) + ")";
+							if (randomColor == 5)
+								return "rgb(0, " + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ")";
+							else
+								return "rgb(" + Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ", " +
+									Math.round(colorScale(d)) + ")";
+						});
+
+					svg.selectAll("text")
+						.data(dataset)
+						.transition()
+						.delay(function(d, i) { return i/dataset.length * 1200; })
+						.duration(500)
+						.text(function(d) {
 							return d;
 						})
 						.attr("x", function(d, i) {
